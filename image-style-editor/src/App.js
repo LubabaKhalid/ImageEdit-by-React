@@ -1,38 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from './firebase';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
 import Signup from './Signup';
-import Editor from './Editor'; // This will be the main editor component
+import Editor from './Editor';
+import { auth } from './firebase';
 
 function App() {
   const [user, setUser] = useState(null);
-  const [showSignup, setShowSignup] = useState(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, setUser);
-    return () => unsub();
+    const unsubscribe = auth.onAuthStateChanged(currentUser => {
+      setUser(currentUser);
+    });
+    return unsubscribe;
   }, []);
 
-  if (!user) {
-    return showSignup ? (
-      <>
-        <Signup onSignup={() => setShowSignup(false)} />
-        <p onClick={() => setShowSignup(false)}>Already have an account? Login</p>
-      </>
-    ) : (
-      <>
-        <Login onLogin={() => {}} />
-        <p onClick={() => setShowSignup(true)}>Don't have an account? Sign up</p>
-      </>
-    );
-  }
-
   return (
-    <>
-      <button onClick={() => signOut(auth)}>Logout</button>
-      <Editor user={user} />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={user ? <Navigate to="/editor" /> : <Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        {/* ✅ Fix is here: pass user to Editor */}
+        <Route path="/editor" element={user ? <Editor user={user} /> : <Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
 }
 

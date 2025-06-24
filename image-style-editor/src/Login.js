@@ -1,40 +1,46 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from './firebase';
+import { useNavigate, Link } from 'react-router-dom';
+import './Auth.css';
 
-export default function Login({ onLogin }) {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const provider = new GoogleAuthProvider();
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      onLogin();
-    } catch (error) {
-      alert(error.message);
+      navigate('/');
+    } catch (err) {
+      alert(err.message);
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogle = async () => {
+    const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      onLogin();
-    } catch (error) {
-      alert(error.message);
+      navigate('/');
+    } catch (err) {
+      alert(err.message);
     }
   };
 
   return (
     <div className="auth-container">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
+      <form className="auth-form" onSubmit={handleLogin}>
+        <h2>🔐 Login</h2>
+        <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} required />
+        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
         <button type="submit">Login</button>
+        <button type="button" className="google-btn" onClick={handleGoogle}>Login with Google</button>
+        <p className="link-text">
+          Don't have an account? <Link to="/signup" className="highlight-link">Sign up</Link>
+        </p>
       </form>
-      <button onClick={handleGoogleLogin}>Sign in with Google</button>
     </div>
   );
 }
