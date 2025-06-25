@@ -2,9 +2,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #dfe9f3, #ffffff);
-  padding: 20px;
+  height: 90vh;
+   background: linear-gradient(to right, #db7d1f, #ffffff);
+  padding: 30px;
 }
 
 .auth-form {

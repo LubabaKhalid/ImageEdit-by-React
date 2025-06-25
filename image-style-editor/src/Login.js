@@ -13,7 +13,7 @@ export default function Login() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (err) {
       alert(err.message);
     }
@@ -23,7 +23,7 @@ export default function Login() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      navigate('/');
+      navigate('/', { replace: true });
     } catch (err) {
       alert(err.message);
     }

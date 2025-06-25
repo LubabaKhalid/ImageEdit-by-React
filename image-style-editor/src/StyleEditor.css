@@ -4,7 +4,7 @@
 
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to right, #ece9e6, #ffffff);
+  background: linear-gradient(to right, #db7d1f, #ffffff);
   margin: 0;
   padding: 2rem;
   transition: background 0.3s ease, color 0.3s ease;

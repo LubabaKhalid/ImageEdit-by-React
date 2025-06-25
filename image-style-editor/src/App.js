@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
 import Signup from './Signup';
-import Editor from './Editor';
+import Editor from './StyleEditor';
 import { auth } from './firebase';
 
 function App() {
