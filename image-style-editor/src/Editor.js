@@ -1,98 +1,104 @@
-import React, { useRef, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import html2canvas from 'html2canvas';
-import './Editor.css'; // Custom CSS
-import { storage } from './firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import './StyleEditor.css';
 
-export default function Editor({ user }) {
-  const [imageUrl, setImageUrl] = useState(null);
+export default function StyleEditor() {
+  const [image, setImage] = useState(null);
   const [styles, setStyles] = useState({
+    width: 50,
     blur: 0,
-    brightness: 100,
-    padding: 0,
-    borderRadius: 0,
-    width: 300,
+    padding: 20,
+    borderRadius: 15,
     grayscale: 0,
+    brightness: 100,
   });
-
   const [darkMode, setDarkMode] = useState(false);
+  const [gallery, setGallery] = useState([]);
   const imageRef = useRef(null);
 
-  const handleImageUpload = async (e) => {
+  const handleUpload = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-
-    const storageRef = ref(storage, `images/${user.uid}/${file.name}`);
-    await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(storageRef);
-    setImageUrl(url);
+    if (file) setImage(URL.createObjectURL(file));
   };
 
-  const handleSliderChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setStyles((prev) => ({
-      ...prev,
-      [name]: parseInt(value),
-    }));
+    setStyles((prev) => ({ ...prev, [name]: parseInt(value) }));
   };
 
-  const downloadImage = async () => {
+  const handleDownload = async () => {
     if (!imageRef.current) return;
     const canvas = await html2canvas(imageRef.current);
     const link = document.createElement('a');
     link.download = 'styled-image.png';
     link.href = canvas.toDataURL();
     link.click();
+
+    // Add to gallery
+    setGallery([...gallery, canvas.toDataURL()]);
   };
 
   return (
-    <div className={`editor-container ${darkMode ? 'dark' : ''}`}>
+    <div className={`container ${darkMode ? 'dark' : ''}`}>
       <header>
-        <h2>🎨 Welcome, {user.email}</h2>
+        <h1>Image Style Editor 🎨</h1>
         <button className="toggle" onClick={() => setDarkMode(!darkMode)}>
           {darkMode ? '🌞 Light Mode' : '🌙 Dark Mode'}
         </button>
       </header>
 
-      <div className="upload-section">
-        <input type="file" accept="image/*" onChange={handleImageUpload} />
+      <div className="controls">
+        <label>Upload Image
+          <input type="file" accept="image/*" onChange={handleUpload} />
+        </label>
+        <label>Width
+          <input type="range" name="width" min="10" max="100" value={styles.width} onChange={handleChange} />
+        </label>
+        <label>Border Radius
+          <input type="range" name="borderRadius" min="0" max="100" value={styles.borderRadius} onChange={handleChange} />
+        </label>
+        <label>Padding
+          <input type="range" name="padding" min="0" max="100" value={styles.padding} onChange={handleChange} />
+        </label>
+        <label>Blur
+          <input type="range" name="blur" min="0" max="25" value={styles.blur} onChange={handleChange} />
+        </label>
+        <label>Grayscale
+          <input type="range" name="grayscale" min="0" max="100" value={styles.grayscale} onChange={handleChange} />
+        </label>
+        <label>Brightness
+          <input type="range" name="brightness" min="50" max="150" value={styles.brightness} onChange={handleChange} />
+        </label>
       </div>
 
-      {imageUrl && (
+      {image && (
         <>
-          <div className="preview-section">
-            <div
-              className="image-preview"
-              ref={imageRef}
-              style={{
-                filter: `blur(${styles.blur}px) brightness(${styles.brightness}%) grayscale(${styles.grayscale}%)`,
-                padding: `${styles.padding}px`,
-                borderRadius: `${styles.borderRadius}px`,
-                width: `${styles.width}px`,
-              }}
-            >
-              <img src={imageUrl} alt="Uploaded" />
-            </div>
+          <div
+            className="preview"
+            ref={imageRef}
+            style={{
+              width: `${styles.width}%`,
+              padding: `${styles.padding}px`,
+              borderRadius: `${styles.borderRadius}px`,
+              filter: `blur(${styles.blur}px) grayscale(${styles.grayscale}%) brightness(${styles.brightness}%)`
+            }}
+          >
+            <img src={image} alt="Uploaded" />
           </div>
 
-          <div className="controls">
-            {['blur', 'brightness', 'padding', 'borderRadius', 'width', 'grayscale'].map((prop) => (
-              <div className="slider" key={prop}>
-                <label>{prop.charAt(0).toUpperCase() + prop.slice(1)}: {styles[prop]}</label>
-                <input
-                  type="range"
-                  name={prop}
-                  min={prop === 'brightness' ? 0 : 0}
-                  max={prop === 'brightness' ? 200 : prop === 'grayscale' ? 100 : prop === 'width' ? 600 : 50}
-                  value={styles[prop]}
-                  onChange={handleSliderChange}
-                />
-              </div>
+          <button onClick={handleDownload} className="download-btn">Download Styled Image</button>
+        </>
+      )}
+
+      {gallery.length > 0 && (
+        <div className="gallery">
+          <h2>🖼️ Gallery</h2>
+          <div className="gallery-grid">
+            {gallery.map((img, idx) => (
+              <img key={idx} src={img} alt={`Styled ${idx}`} />
             ))}
           </div>
-
-          <button className="download-btn" onClick={downloadImage}>📥 Download Image</button>
-        </>
+        </div>
       )}
     </div>
   );
