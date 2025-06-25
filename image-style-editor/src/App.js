@@ -21,7 +21,6 @@ function App() {
         <Route path="/" element={user ? <Navigate to="/editor" /> : <Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        {/* ✅ Fix is here: pass user to Editor */}
         <Route path="/editor" element={user ? <Editor user={user} /> : <Navigate to="/" />} />
       </Routes>
     </Router>

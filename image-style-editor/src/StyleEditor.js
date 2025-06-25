@@ -11,7 +11,7 @@ export default function StyleEditor() {
     borderRadius: 15,
     grayscale: 0,
     brightness: 100,
-    base: '#ffffff', // New base color
+    base: '#ffffff', 
   });
   const [darkMode, setDarkMode] = useState(false);
   const [gallery, setGallery] = useState([]);
@@ -39,7 +39,7 @@ export default function StyleEditor() {
     link.href = canvas.toDataURL();
     link.click();
 
-    // Add to gallery
+   
     setGallery([...gallery, canvas.toDataURL()]);
   };
 

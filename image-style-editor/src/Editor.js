@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import './StyleEditor.css';
+import { auth } from './firebase'; 
 
 export default function StyleEditor() {
   const [image, setImage] = useState(null);
@@ -16,7 +17,6 @@ export default function StyleEditor() {
   const [gallery, setGallery] = useState([]);
   const imageRef = useRef(null);
 
-  // Apply/remove dark mode class on body
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add('dark-mode');
@@ -42,8 +42,13 @@ export default function StyleEditor() {
     link.download = 'styled-image.png';
     link.href = canvas.toDataURL();
     link.click();
-
     setGallery([...gallery, canvas.toDataURL()]);
+  };
+
+  const handleLogout = () => {
+    auth.signOut().then(() => {
+      window.location.href = '/login'; 
+    });
   };
 
   return (
@@ -53,6 +58,7 @@ export default function StyleEditor() {
         <button className="toggle-btn" onClick={() => setDarkMode(!darkMode)}>
           {darkMode ? '🌞 Light Mode' : '🌙 Dark Mode'}
         </button>
+        <button className="toggle-btn" onClick={handleLogout}>🔓 Logout</button>
       </header>
 
       <div className="controls">
