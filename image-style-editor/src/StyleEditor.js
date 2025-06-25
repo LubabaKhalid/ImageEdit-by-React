@@ -11,18 +11,14 @@ export default function StyleEditor() {
     borderRadius: 15,
     grayscale: 0,
     brightness: 100,
+    base: '#ffffff', // New base color
   });
   const [darkMode, setDarkMode] = useState(false);
   const [gallery, setGallery] = useState([]);
   const imageRef = useRef(null);
 
-  // Apply/remove dark mode class on body
   useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
+    document.body.classList.toggle('dark-mode', darkMode);
   }, [darkMode]);
 
   const handleUpload = (e) => {
@@ -32,7 +28,7 @@ export default function StyleEditor() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setStyles((prev) => ({ ...prev, [name]: parseInt(value) }));
+    setStyles((prev) => ({ ...prev, [name]: name === 'base' ? value : parseInt(value) }));
   };
 
   const handleDownload = async () => {
@@ -43,11 +39,12 @@ export default function StyleEditor() {
     link.href = canvas.toDataURL();
     link.click();
 
+    // Add to gallery
     setGallery([...gallery, canvas.toDataURL()]);
   };
 
   return (
-    <div className="container">
+    <div className={`container ${darkMode ? 'dark' : ''}`}>
       <header>
         <h1>Image Style Editor 🎨</h1>
         <button className="toggle-btn" onClick={() => setDarkMode(!darkMode)}>
@@ -58,6 +55,9 @@ export default function StyleEditor() {
       <div className="controls">
         <label>Upload Image
           <input type="file" accept="image/*" onChange={handleUpload} />
+        </label>
+        <label>Base Color
+          <input type="color" name="base" value={styles.base} onChange={handleChange} />
         </label>
         <label>Width
           <input type="range" name="width" min="10" max="100" value={styles.width} onChange={handleChange} />
@@ -85,16 +85,17 @@ export default function StyleEditor() {
             className="preview"
             ref={imageRef}
             style={{
+              backgroundColor: styles.base,
               width: `${styles.width}%`,
               padding: `${styles.padding}px`,
               borderRadius: `${styles.borderRadius}px`,
-              filter: `blur(${styles.blur}px) grayscale(${styles.grayscale}%) brightness(${styles.brightness}%)`
+              filter: `blur(${styles.blur}px) grayscale(${styles.grayscale}%) brightness(${styles.brightness}%)`,
             }}
           >
             <img src={image} alt="Uploaded" />
           </div>
 
-          <button onClick={handleDownload} className="download-btn">Download Styled Image</button>
+          <button onClick={handleDownload} className="download-btn">📥 Download Styled Image</button>
         </>
       )}
 
